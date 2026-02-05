@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>answr</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card: rgba(255, 255, 255, 0.03);
+            --accent: #ffffff;
+            --text-dim: #555;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg); color: white; font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
+
+        /* Splash Screen */
+        #splash {
+            position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 100; cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #splash.hidden { opacity: 0; visibility: hidden; }
+
+        .container { max-width: 700px; margin: 0 auto; padding: 60px 20px; opacity: 0; transition: 1s ease; }
+        body.active .container { opacity: 1; }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand img { width: 35px; mix-blend-mode: screen; filter: brightness(1.2); }
+        .tm { font-size: 0.55rem; color: #333; letter-spacing: 2px; font-weight: 600; }
+
+        /* Input Area */
+        .drop-zone {
+            background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+            height: 220px; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .drop-zone:hover { border-color: #333; background: rgba(255,255,255,0.05); }
+        
+        #preview { max-height: 120px; border-radius: 12px; display: none; z-index: 2; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* Results */
+        #result-area { margin-top: 30px; padding: 35px; background: var(--card); border: 1px solid var(--border); border-radius: 28px; display: none; }
+        .ans-label { color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; font-weight: 600; }
+        .main-answer { font-size: 1.8rem; font-weight: 500; margin-bottom: 25px; color: var(--accent); line-height: 1.2; }
+        .explanation { font-size: 0.95rem; color: #888; line-height: 1.8; font-weight: 300; white-space: pre-line; border-top: 1px solid var(--border); padding-top: 20px; }
+
+        /* Loading Animation */
+        .loader {
+            width: 28px; height: 28px; border: 2px solid rgba(255,255,255,0.05);
+            border-top: 2px solid white; border-radius: 50%; animation: spin 0.8s linear infinite; display: none;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #status-text { font-size: 0.75rem; color: #444; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <div id="splash" onclick="enterSite()">
+        <img src="https://files.catbox.moe/42tjbu.png" style="width:70px; mix-blend-mode:screen;" alt="logo">
+        <div style="letter-spacing:5px; font-size:0.65rem; color:#333; margin-top:24px; font-weight:600;">CLICK TO ENTER</div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="brand">
+                <img src="https://files.catbox.moe/42tjbu.png" alt="logo">
+                <h1 style="font-size:1.4rem; letter-spacing:-0.5px;">answr</h1>
+            </div>
+            <div class="tm">MADE BY MIKEY</div>
+        </header>
+
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <img id="preview" src="#">
+            <p id="dropText" style="color:#444; font-size:0.85rem; font-weight:300;">PASTE IMAGE OR UPLOAD</p>
+            <div class="loader" id="loader"></div>
+            <div id="status-text"></div>
+        </div>
+
+        <div id="result-area">
+            <div class="ans-label">Final Answer</div>
+            <div class="main-answer" id="mainAnswer"></div>
+            <div class="ans-label">Solving Steps</div>
+            <div class="explanation" id="explanation"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- CONFIGURATION ---
+        const API_KEY = "AIzaSyCHdkNIY3UFJxo14MO9o8Vyj0hjS0fNBAo"; 
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+        window.enterSite = function() {
+            document.getElementById('splash').classList.add('hidden');
+            document.body.classList.add('active');
+        }
+
+        const fileInput = document.getElementById('fileInput');
+        fileInput.onchange = e => handleImage(e.target.files[0]);
+
+        window.onpaste = e => {
+            const item = Array.from(e.clipboardData.items).find(x => x.type.indexOf('image') !== -1);
+            if (item) handleImage(item.getAsFile());
+        };
+
+        async function handleImage(file) {
+            if (!file) return;
+            if (API_KEY === "PASTE_YOUR_API_KEY_HERE") {
+                alert("Please add your Gemini API Key to the code first!");
+                return;
+            }
+            
+            // UI States
+            document.getElementById('preview').src = URL.createObjectURL(file);
+            document.getElementById('preview').style.display = 'block';
+            document.getElementById('dropText').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('result-area').style.display = 'none';
+            const status = document.getElementById('status-text');
+            status.innerText = "Analyzing Screenshot...";
+
+            const base64Data = await toBase64(file);
+            const pureBase64 = base64Data.split(',')[1];
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: "Look at this image. Provide ONLY the correct answer first in a single short sentence. Then, under a line, provide the step-by-step logic used to solve it. If it is multiple choice, state the letter and the full text of the correct option." },
+                                { inline_data: { mime_type: "image/png", data: pureBase64 } }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const fullText = data.candidates[0].content.parts[0].text;
+                displayResult(fullText);
+            } catch (err) {
+                status.innerText = "API Error. Check your Key.";
+                console.error(err);
+            }
+        }
+
+        function displayResult(text) {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('status-text').innerText = "Complete";
+            document.getElementById('result-area').style.display = 'block';
+            
+            // Splitting answer and steps based on the prompt's structure
+            const parts = text.split('\n');
+            document.getElementById('mainAnswer').innerText = parts[0];
+            document.getElementById('explanation').innerText = parts.slice(1).join('\n').trim();
+            
+            document.getElementById('result-area').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    </script>
+</body>
+</html>
