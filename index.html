@@ -10,43 +10,42 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
 
-        /* Performance Snow System */
+        /* Performance Blizzard Snow */
         canvas#snow { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1; }
 
-        .container { position: relative; z-index: 2; width: 90%; max-width: 750px; padding: 80px 0; text-align: center; }
+        .container { position: relative; z-index: 2; width: 90%; max-width: 750px; padding: 100px 0; text-align: center; }
         
-        /* Logo: Bigger & Better */
-        .logo { width: 220px; margin-bottom: 50px; filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)); transition: 0.5s ease; cursor: pointer; }
-        .logo:hover { transform: scale(1.03); filter: drop-shadow(0 0 40px rgba(255,255,255,0.2)); }
+        /* Logo: 300px per request */
+        .logo { width: 300px; margin-bottom: 60px; filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)); transition: 0.5s ease; }
+        .logo:hover { transform: scale(1.02); filter: drop-shadow(0 0 50px rgba(255,255,255,0.2)); }
 
-        /* Hidden Wiki Nav */
-        .wiki-header { display: flex; gap: 15px; margin-bottom: 40px; }
+        /* Stealth Wiki Nav */
+        .wiki-nav { display: flex; gap: 15px; margin-bottom: 40px; }
         .nav-slot { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; backdrop-filter: blur(10px); }
-        select { width: 100%; background: transparent; border: none; color: #888; outline: none; cursor: pointer; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; text-align: center; }
+        select { width: 100%; background: transparent; border: none; color: #666; outline: none; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; text-align: center; }
         option { background: #000; color: #fff; }
 
         /* Drop Zone */
         .drop-area { 
             background: var(--card); border: 1px dashed var(--border); border-radius: 40px; 
-            padding: 100px 20px; cursor: pointer; transition: 0.4s; margin-bottom: 40px;
+            padding: 120px 20px; cursor: pointer; transition: 0.4s; margin-bottom: 40px;
         }
         .drop-area:hover { background: rgba(255,255,255,0.04); border-color: #444; }
-        #preview { max-height: 220px; border-radius: 20px; display: none; margin: 0 auto 25px; border: 1px solid var(--border); }
-        .drop-area p { color: #222; font-size: 0.7rem; letter-spacing: 4px; font-weight: 800; text-transform: uppercase; }
+        #preview { max-height: 250px; border-radius: 20px; display: none; margin: 0 auto 25px; border: 1px solid var(--border); }
+        .drop-area p { color: #1a1a1a; font-size: 0.7rem; letter-spacing: 5px; font-weight: 900; text-transform: uppercase; }
 
-        /* Results Logic */
-        #results { display: none; text-align: left; animation: reveal 1s cubic-bezier(0.16, 1, 0.3, 1); }
-        .wiki-block { background: rgba(255,255,255,0.01); border: 1px solid var(--border); border-radius: 30px; padding: 40px; margin-bottom: 20px; backdrop-filter: blur(15px); }
-        .label { font-size: 0.55rem; color: #555; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 20px; font-weight: 900; display: block; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .ans-text { font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 700; color: #fff; margin-top: 10px; line-height: 1.1; }
-        .method-text { color: #777; line-height: 2; font-size: 0.95rem; white-space: pre-wrap; font-weight: 300; }
+        /* Results Display */
+        #results { display: none; text-align: left; animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .wiki-block { background: rgba(255,255,255,0.01); border: 1px solid var(--border); border-radius: 30px; padding: 45px; margin-bottom: 20px; backdrop-filter: blur(20px); }
+        .label { font-size: 0.55rem; color: #444; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; font-weight: 900; display: block; border-bottom: 1px solid #111; padding-bottom: 12px; }
+        .ans-text { font-family: 'Outfit', sans-serif; font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1.1; }
+        .method-text { color: #888; line-height: 2; font-size: 1rem; white-space: pre-wrap; font-weight: 300; }
 
-        /* Loader */
         .spin { width: 30px; height: 30px; border: 2px solid #111; border-top-color: #fff; border-radius: 50%; animation: rot 0.8s linear infinite; display: none; margin: 20px auto; }
         @keyframes rot { to { transform: rotate(360deg); } }
         @keyframes reveal { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         
-        footer { margin-top: auto; padding: 60px; font-size: 0.6rem; letter-spacing: 8px; color: #151515; font-weight: 900; }
+        footer { margin-top: auto; padding: 80px; font-size: 0.6rem; letter-spacing: 10px; color: #111; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -54,61 +53,45 @@
 <canvas id="snow"></canvas>
 
 <div class="container">
-    <img src="https://files.catbox.moe/rmczko.png" class="logo" alt="answr wiki">
+    <img src="https://files.catbox.moe/rmczko.png" class="logo">
 
-    <div class="wiki-header">
-        <div class="nav-slot">
-            <select id="grade">
-                <option value="Middle School">Middle School</option>
-                <option value="High School" selected>High School</option>
-                <option value="College">College / University</option>
-            </select>
-        </div>
-        <div class="nav-slot">
-            <select id="subject">
-                <option value="Mathematics" selected>Math</option>
-                <option value="Science">Science</option>
-                <option value="Humanities">Writing / History</option>
-            </select>
-        </div>
+    <div class="wiki-nav">
+        <div class="nav-slot"><select id="grade"><option>High School</option><option>Middle School</option><option>University</option></select></div>
+        <div class="nav-slot"><select id="subject"><option>Mathematics</option><option>Science</option><option>Humanities</option></select></div>
     </div>
 
-    <div class="drop-area" id="dropZone" onclick="document.getElementById('fileIn').click()">
+    <div class="drop-area" onclick="document.getElementById('fileIn').click()">
         <img id="preview">
-        <p id="msg">Drop image or paste</p>
+        <p id="msg">DROP TO SOLVE</p>
         <div class="spin" id="loader"></div>
         <input type="file" id="fileIn" hidden accept="image/*">
     </div>
 
     <div id="results">
         <div class="wiki-block" style="border-top: 2px solid #fff;">
-            <span class="label">Primary Conclusion</span>
+            <span class="label">Solution</span>
             <div id="ans" class="ans-text"></div>
         </div>
         <div class="wiki-block">
-            <span class="label">Supporting Methodology</span>
+            <span class="label">Step-by-Step Methodology</span>
             <div id="method" class="method-text"></div>
         </div>
     </div>
 
-    <footer>WIKI CORE SYSTEMS ™</footer>
+    <footer>ANSR WIKI SYSTEMS</footer>
 </div>
 
 <script>
-    // --- ADVANCED SNOW ---
+    // --- Canvas Snow Blizzard ---
     const cvs = document.getElementById('snow');
     const c = cvs.getContext('2d');
     let w, h, dots = [];
-
     function setup() {
         w = cvs.width = window.innerWidth;
         h = cvs.height = window.innerHeight;
         dots = [];
-        for(let i=0; i<120; i++) {
-            dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2+1, d: Math.random()*1+0.5, o: Math.random()*0.4 });
-        }
+        for(let i=0; i<150; i++) dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*3+1, d: Math.random()*1+0.5, o: Math.random()*0.5 });
     }
-
     function draw() {
         c.clearRect(0,0,w,h);
         c.fillStyle = "white";
@@ -121,8 +104,8 @@
     }
     window.onresize = setup; setup(); draw();
 
-    // --- API FIX (Stable v1) ---
-    const KEY = "AIzaSyCHdkNIY3UFJxo14MO9o8Vyj0hjS0fNBAo"; 
+    // --- API Logic ---
+    const KEY = "AIzaSyBZV-Rz2xvRyY0vS_Lzei6kj7CX7neZguc"; 
 
     document.getElementById('fileIn').onchange = e => solve(e.target.files[0]);
     window.onpaste = e => {
@@ -143,38 +126,29 @@
         reader.onload = async () => {
             const b64 = reader.result.split(',')[1];
             try {
-                // Forcing v1 production endpoint to fix the 404 error
-                const api = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
-                
-                const res = await fetch(api, {
+                // FIXED: v1 Stable endpoint
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: `Wiki Assistant: Solve this for ${document.getElementById('grade').value} level ${document.getElementById('subject').value}. Final answer on line 1. Detailed steps below.` },
+                                { text: "Solve this. First line: short answer. Following lines: detailed breakdown." },
                                 { inline_data: { mime_type: "image/jpeg", data: b64 } }
                             ]
                         }]
                     })
                 });
-
                 const json = await res.json();
-                if (json.error) throw new Error(json.error.message);
-
                 const output = json.candidates[0].content.parts[0].text;
                 const split = output.split('\n');
-                
                 document.getElementById('ans').innerText = split[0];
                 document.getElementById('method').innerText = split.slice(1).join('\n').trim();
-                
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('results').style.display = 'block';
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-
             } catch (err) {
-                console.error(err);
-                alert("WIKI SYSTEM ERROR: Verify 'Generative Language API' is enabled in Google Cloud Console.");
+                alert("WIKI ERROR: Ensure API is enabled in Cloud Console.");
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('msg').style.display = 'block';
             }
