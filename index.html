@@ -4,85 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>answr | wiki</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&family=Outfit:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --card: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.07); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
+        :root { --bg: #050505; --accent: #fff; --card: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: crosshair; }
+        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; }
 
-        /* Performance Blizzard Snow */
+        /* Performance Snow */
         canvas#snow { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1; }
 
-        .container { position: relative; z-index: 2; width: 90%; max-width: 750px; padding: 100px 0; text-align: center; }
+        /* Entry Portal Screen */
+        #portal {
+            position: fixed; inset: 0; background: #000; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .portal-btn {
+            background: none; border: 1px solid #222; color: #444; padding: 15px 40px;
+            font-size: 0.6rem; letter-spacing: 5px; text-transform: uppercase; font-weight: 900;
+            border-radius: 50px; transition: 0.4s; margin-top: 20px; cursor: pointer;
+        }
+        .portal-btn:hover { border-color: #fff; color: #fff; box-shadow: 0 0 30px rgba(255,255,255,0.1); }
+
+        /* Main App Layout */
+        #app { opacity: 0; transition: 1.5s; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow-y: auto; padding: 80px 0; position: relative; z-index: 5; }
+        .container { width: 90%; max-width: 750px; text-align: center; }
+
+        /* Branding: Big & Polished */
+        .logo { width: 300px; margin-bottom: 50px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.05)); }
         
-        /* Logo: 300px per request */
-        .logo { width: 300px; margin-bottom: 60px; filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)); transition: 0.5s ease; }
-        .logo:hover { transform: scale(1.02); filter: drop-shadow(0 0 50px rgba(255,255,255,0.2)); }
+        .wiki-nav { display: flex; gap: 15px; margin-bottom: 30px; }
+        .nav-slot { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; backdrop-filter: blur(10px); }
+        select { width: 100%; background: transparent; border: none; color: #555; outline: none; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; text-align: center; }
 
-        /* Stealth Wiki Nav */
-        .wiki-nav { display: flex; gap: 15px; margin-bottom: 40px; }
-        .nav-slot { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; backdrop-filter: blur(10px); }
-        select { width: 100%; background: transparent; border: none; color: #666; outline: none; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; text-align: center; }
-        option { background: #000; color: #fff; }
-
-        /* Drop Zone */
+        /* Drop Area */
         .drop-area { 
             background: var(--card); border: 1px dashed var(--border); border-radius: 40px; 
-            padding: 120px 20px; cursor: pointer; transition: 0.4s; margin-bottom: 40px;
+            padding: 100px 20px; transition: 0.4s; margin-bottom: 30px; position: relative;
         }
-        .drop-area:hover { background: rgba(255,255,255,0.04); border-color: #444; }
-        #preview { max-height: 250px; border-radius: 20px; display: none; margin: 0 auto 25px; border: 1px solid var(--border); }
-        .drop-area p { color: #1a1a1a; font-size: 0.7rem; letter-spacing: 5px; font-weight: 900; text-transform: uppercase; }
+        .drop-area:hover { background: rgba(255,255,255,0.03); border-color: #333; }
+        #preview { max-height: 250px; border-radius: 20px; display: none; margin: 0 auto 20px; border: 1px solid var(--border); }
+        .drop-area p { color: #151515; font-size: 0.7rem; letter-spacing: 6px; font-weight: 900; text-transform: uppercase; }
 
-        /* Results Display */
-        #results { display: none; text-align: left; animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-        .wiki-block { background: rgba(255,255,255,0.01); border: 1px solid var(--border); border-radius: 30px; padding: 45px; margin-bottom: 20px; backdrop-filter: blur(20px); }
-        .label { font-size: 0.55rem; color: #444; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; font-weight: 900; display: block; border-bottom: 1px solid #111; padding-bottom: 12px; }
-        .ans-text { font-family: 'Outfit', sans-serif; font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1.1; }
-        .method-text { color: #888; line-height: 2; font-size: 1rem; white-space: pre-wrap; font-weight: 300; }
+        /* Solving UI */
+        #results { display: none; text-align: left; width: 100%; }
+        .wiki-block { background: var(--card); border: 1px solid var(--border); border-radius: 30px; padding: 40px; margin-bottom: 20px; backdrop-filter: blur(20px); }
+        .label { font-size: 0.5rem; color: #333; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 20px; font-weight: 900; display: block; border-bottom: 1px solid #111; padding-bottom: 10px; }
+        .ans-text { font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 700; color: #fff; line-height: 1.1; }
+        .method-text { color: #888; line-height: 1.8; font-size: 0.95rem; white-space: pre-wrap; font-weight: 300; }
 
-        .spin { width: 30px; height: 30px; border: 2px solid #111; border-top-color: #fff; border-radius: 50%; animation: rot 0.8s linear infinite; display: none; margin: 20px auto; }
+        /* Loaders */
+        .spin { width: 25px; height: 25px; border: 2px solid #111; border-top-color: #fff; border-radius: 50%; animation: rot 0.8s linear infinite; display: none; margin: 20px auto; }
         @keyframes rot { to { transform: rotate(360deg); } }
-        @keyframes reveal { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         
-        footer { margin-top: auto; padding: 80px; font-size: 0.6rem; letter-spacing: 10px; color: #111; font-weight: 900; }
+        footer { margin-top: auto; padding: 60px; font-size: 0.6rem; letter-spacing: 12px; color: #111; font-weight: 900; text-align: center; width: 100%; }
     </style>
 </head>
 <body>
 
 <canvas id="snow"></canvas>
 
-<div class="container">
-    <img src="https://files.catbox.moe/rmczko.png" class="logo">
+<div id="portal">
+    <img src="https://files.catbox.moe/rmczko.png" style="width: 150px; opacity: 0.3;" alt="answr wiki">
+    <button class="portal-btn" onclick="enter()">Initialize Wiki Session</button>
+</div>
 
-    <div class="wiki-nav">
-        <div class="nav-slot"><select id="grade"><option>High School</option><option>Middle School</option><option>University</option></select></div>
-        <div class="nav-slot"><select id="subject"><option>Mathematics</option><option>Science</option><option>Humanities</option></select></div>
-    </div>
+<div id="app">
+    <div class="container">
+        <img src="https://files.catbox.moe/rmczko.png" class="logo" alt="answr wiki">
 
-    <div class="drop-area" onclick="document.getElementById('fileIn').click()">
-        <img id="preview">
-        <p id="msg">DROP TO SOLVE</p>
-        <div class="spin" id="loader"></div>
-        <input type="file" id="fileIn" hidden accept="image/*">
-    </div>
-
-    <div id="results">
-        <div class="wiki-block" style="border-top: 2px solid #fff;">
-            <span class="label">Solution</span>
-            <div id="ans" class="ans-text"></div>
+        <div class="wiki-nav">
+            <div class="nav-slot"><select><option>Level: Standard</option><option>Level: Advanced</option></select></div>
+            <div class="nav-slot"><select><option>Database: Unified</option><option>Database: Academic</option></select></div>
         </div>
-        <div class="wiki-block">
-            <span class="label">Step-by-Step Methodology</span>
-            <div id="method" class="method-text"></div>
-        </div>
-    </div>
 
-    <footer>ANSR WIKI SYSTEMS</footer>
+        <div class="drop-area" id="dropZone" onclick="document.getElementById('fileIn').click()">
+            <img id="preview">
+            <p id="msg">CTRL+V OR CLICK TO DROP</p>
+            <div class="spin" id="loader"></div>
+            <input type="file" id="fileIn" hidden accept="image/*">
+        </div>
+
+        <div id="results">
+            <div class="wiki-block" style="border-top: 1px solid #fff;">
+                <span class="label">Executive Summary</span>
+                <div id="ans" class="ans-text"></div>
+            </div>
+            <div class="wiki-block">
+                <span class="label">Analytical Methodology</span>
+                <div id="method" class="method-text"></div>
+            </div>
+        </div>
+        <footer>WIKI CORE v1.0.4</footer>
+    </div>
 </div>
 
 <script>
-    // --- Canvas Snow Blizzard ---
+    const KEY = "AIzaSyBZV-Rz2xvRyY0vS_Lzei6kj7CX7neZguc"; //
+
+    function enter() {
+        document.getElementById('portal').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('portal').style.display = 'none';
+            document.getElementById('app').style.opacity = '1';
+        }, 1000);
+    }
+
+    // --- Blizzard Engine ---
     const cvs = document.getElementById('snow');
     const c = cvs.getContext('2d');
     let w, h, dots = [];
@@ -90,7 +118,7 @@
         w = cvs.width = window.innerWidth;
         h = cvs.height = window.innerHeight;
         dots = [];
-        for(let i=0; i<150; i++) dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*3+1, d: Math.random()*1+0.5, o: Math.random()*0.5 });
+        for(let i=0; i<150; i++) dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2+1, d: Math.random()*1+0.4, o: Math.random()*0.5 });
     }
     function draw() {
         c.clearRect(0,0,w,h);
@@ -104,9 +132,7 @@
     }
     window.onresize = setup; setup(); draw();
 
-    // --- API Logic ---
-    const KEY = "AIzaSyBZV-Rz2xvRyY0vS_Lzei6kj7CX7neZguc"; 
-
+    // --- API Logic (Stable v1) ---
     document.getElementById('fileIn').onchange = e => solve(e.target.files[0]);
     window.onpaste = e => {
         const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image'));
@@ -115,42 +141,56 @@
 
     async function solve(file) {
         if (!file) return;
-        document.getElementById('loader').style.display = 'block';
-        document.getElementById('msg').style.display = 'none';
-        document.getElementById('results').style.display = 'none';
-        document.getElementById('preview').src = URL.createObjectURL(file);
-        document.getElementById('preview').style.display = 'block';
+        const loader = document.getElementById('loader');
+        const msg = document.getElementById('msg');
+        const results = document.getElementById('results');
+        const preview = document.getElementById('preview');
+
+        loader.style.display = 'block';
+        msg.style.display = 'none';
+        results.style.display = 'none';
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
 
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async () => {
             const b64 = reader.result.split(',')[1];
             try {
-                // FIXED: v1 Stable endpoint
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`, {
+                // FIXED: v1 production endpoint to fix 404 error
+                const api = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+                
+                const res = await fetch(api, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "Solve this. First line: short answer. Following lines: detailed breakdown." },
+                                { text: "Wiki Assistant: Solve this professionally. Final answer on line 1. Steps below." },
                                 { inline_data: { mime_type: "image/jpeg", data: b64 } }
                             ]
                         }]
                     })
                 });
+
                 const json = await res.json();
+                if (json.error) throw new Error(json.error.message); //
+
                 const output = json.candidates[0].content.parts[0].text;
                 const split = output.split('\n');
+                
                 document.getElementById('ans').innerText = split[0];
                 document.getElementById('method').innerText = split.slice(1).join('\n').trim();
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('results').style.display = 'block';
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                
+                loader.style.display = 'none';
+                results.style.display = 'block';
+                document.getElementById('app').scrollTo({ top: document.getElementById('app').scrollHeight, behavior: 'smooth' });
+
             } catch (err) {
-                alert("WIKI ERROR: Ensure API is enabled in Cloud Console.");
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('msg').style.display = 'block';
+                console.error(err);
+                alert("WIKI SYSTEM ERROR: Verify API is enabled and unrestricted."); //
+                loader.style.display = 'none';
+                msg.style.display = 'block';
             }
         };
     }
