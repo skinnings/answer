@@ -6,61 +6,38 @@
     <title>answr | wiki</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&family=Outfit:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --accent: #ffffff; --card: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08); }
+        :root { --bg: #050505; --card: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: crosshair; }
         body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
-
         canvas#snow { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1; }
 
-        /* Portal Screen */
-        #portal {
-            position: fixed; inset: 0; background: #000; z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .portal-btn {
-            background: none; border: 1px solid #222; color: #444; padding: 18px 45px;
-            font-size: 0.65rem; letter-spacing: 7px; text-transform: uppercase; font-weight: 900;
-            border-radius: 50px; transition: 0.4s; cursor: pointer;
-        }
-        .portal-btn:hover { border-color: #fff; color: #fff; box-shadow: 0 0 40px rgba(255,255,255,0.1); }
+        #portal { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s; }
+        .portal-btn { background: none; border: 1px solid #222; color: #444; padding: 20px 50px; font-size: 0.65rem; letter-spacing: 8px; text-transform: uppercase; font-weight: 900; border-radius: 60px; cursor: pointer; }
+        .portal-btn:hover { border-color: #fff; color: #fff; box-shadow: 0 0 50px rgba(255,255,255,0.1); }
 
-        /* App Interface */
-        #app { opacity: 0; transition: 1.2s; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 60px 0; z-index: 5; position: relative; visibility: hidden; }
+        #app { opacity: 0; transition: 1s; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 60px 0; z-index: 5; position: relative; visibility: hidden; }
         .container { width: 90%; max-width: 720px; text-align: center; }
-
-        .logo { width: 340px; margin-bottom: 45px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.05)); }
+        .logo { width: 340px; margin-bottom: 50px; filter: drop-shadow(0 0 25px rgba(255,255,255,0.08)); }
         
-        /* Clean Topic System */
-        .topics { display: flex; justify-content: center; gap: 10px; margin-bottom: 35px; flex-wrap: wrap; }
-        .topic-pill { 
-            background: var(--card); border: 1px solid var(--border); padding: 11px 22px; 
-            border-radius: 50px; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; 
-            font-weight: 700; color: #333; transition: 0.3s; cursor: pointer;
-        }
-        .topic-pill:hover, .topic-pill.active { border-color: #fff; color: #fff; background: rgba(255,255,255,0.04); }
+        .topics { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; }
+        .topic-pill { background: var(--card); border: 1px solid var(--border); padding: 12px 24px; border-radius: 50px; font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; color: #333; cursor: pointer; transition: 0.3s; }
+        .topic-pill.active { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
 
-        /* Upload Area */
-        .drop-area { 
-            background: var(--card); border: 1px solid var(--border); border-radius: 40px; 
-            padding: 100px 20px; transition: 0.5s; margin-bottom: 40px; position: relative;
-        }
-        .drop-area:hover { border-color: #444; background: rgba(255,255,255,0.03); }
+        .drop-area { background: var(--card); border: 1px solid var(--border); border-radius: 40px; padding: 110px 20px; transition: 0.5s; margin-bottom: 40px; }
+        .drop-area:hover { border-color: #555; }
         #preview { max-height: 220px; border-radius: 18px; display: none; margin: 0 auto 25px; border: 1px solid var(--border); }
-        .drop-p { color: #151515; font-size: 0.7rem; letter-spacing: 6px; font-weight: 900; text-transform: uppercase; }
+        .drop-p { color: #151515; font-size: 0.75rem; letter-spacing: 7px; font-weight: 900; text-transform: uppercase; }
 
-        /* Results */
-        #results { display: none; text-align: left; width: 100%; animation: slideIn 0.7s ease; }
+        #results { display: none; text-align: left; width: 100%; animation: slideIn 0.6s ease-out; }
         .wiki-block { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 45px; margin-bottom: 25px; backdrop-filter: blur(20px); }
-        .label { font-size: 0.5rem; color: #222; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 18px; font-weight: 900; display: block; border-bottom: 1px solid #111; padding-bottom: 10px; }
+        .label { font-size: 0.55rem; color: #222; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 18px; font-weight: 900; display: block; border-bottom: 1px solid #111; padding-bottom: 10px; }
         .ans-text { font-family: 'Outfit', sans-serif; font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1.1; }
-        .method-text { color: #888; line-height: 1.9; font-size: 0.95rem; white-space: pre-wrap; font-weight: 300; }
+        .method-text { color: #888; line-height: 2; font-size: 0.95rem; white-space: pre-wrap; font-weight: 300; }
 
         .spin { width: 30px; height: 30px; border: 2px solid #111; border-top-color: #fff; border-radius: 50%; animation: rot 0.8s linear infinite; display: none; margin: 25px auto; }
         @keyframes rot { to { transform: rotate(360deg); } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        
-        footer { margin-top: auto; padding: 50px; font-size: 0.55rem; letter-spacing: 15px; color: #111; font-weight: 900; }
+        footer { margin-top: auto; padding: 50px; font-size: 0.6rem; letter-spacing: 18px; color: #111; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -68,46 +45,37 @@
 <canvas id="snow"></canvas>
 
 <div id="portal">
-    <button class="portal-btn" onclick="enter()">INITIALIZE SESSION</button>
+    <button class="portal-btn" onclick="enterApp()">INITIALIZE WIKI</button>
 </div>
 
 <div id="app">
     <div class="container">
         <img src="https://files.catbox.moe/rmczko.png" class="logo">
-
         <div class="topics">
             <div class="topic-pill active">General</div>
             <div class="topic-pill">Math</div>
             <div class="topic-pill">History</div>
             <div class="topic-pill">Writing</div>
         </div>
-
         <div class="drop-area" onclick="document.getElementById('fileIn').click()">
             <img id="preview">
-            <p class="drop-p" id="msg">PASTE OR CLICK TO UPLOAD</p>
+            <p class="drop-p" id="msg">UPLOAD OR PASTE IMAGE</p>
             <div class="spin" id="loader"></div>
             <input type="file" id="fileIn" hidden accept="image/*">
         </div>
-
         <div id="results">
-            <div class="wiki-block" style="border-top: 1px solid #fff;">
-                <span class="label">Primary Conclusion (Copied)</span>
-                <div id="ans" class="ans-text"></div>
-            </div>
-            <div class="wiki-block">
-                <span class="label">Analytical Methodology</span>
-                <div id="method" class="method-text"></div>
-            </div>
+            <div class="wiki-block" style="border-top: 2px solid #fff;"><span class="label">Conclusion (Copied)</span><div id="ans" class="ans-text"></div></div>
+            <div class="wiki-block"><span class="label">Methodology</span><div id="method" class="method-text"></div></div>
         </div>
-        <footer>WIKI CORE 1.2.0</footer>
+        <footer>WIKI CORE 1.3</footer>
     </div>
 </div>
 
 <script>
-    // --- AUTH CONFIGURATION ---
+    // YOUR UNRESTRICTED KEY
     const KEY = "AIzaSyDrTpxSzA9VVeQuS9GJmL6VJ7MmOnciQPY"; 
 
-    function enter() {
+    function enterApp() {
         document.getElementById('portal').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('portal').style.display = 'none';
@@ -116,20 +84,12 @@
         }, 800);
     }
 
-    // Stealth Mode: Double click background to wipe screen
-    document.body.ondblclick = () => {
-        document.getElementById('results').style.display = 'none';
-        document.getElementById('preview').style.display = 'none';
-        document.getElementById('msg').style.display = 'block';
-    };
-
-    // Blizzard Engine
+    // Snow animation
     const cvs = document.getElementById('snow'), c = cvs.getContext('2d');
     let w, h, dots = [];
     function setup() {
         w = cvs.width = window.innerWidth; h = cvs.height = window.innerHeight;
-        dots = [];
-        for(let i=0; i<120; i++) dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2, d: Math.random()*0.5+0.2, o: Math.random()*0.4 });
+        dots = []; for(let i=0; i<100; i++) dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2, d: Math.random()*0.5+0.2, o: Math.random()*0.4 });
     }
     function draw() {
         c.clearRect(0,0,w,h); c.fillStyle = "white";
@@ -138,25 +98,21 @@
     }
     window.onresize = setup; setup(); draw();
 
-    // Topic selection
-    document.querySelectorAll('.topic-pill').forEach(pill => {
-        pill.onclick = () => {
-            document.querySelector('.topic-pill.active').classList.remove('active');
-            pill.classList.add('active');
-        };
+    // Topic Toggles
+    document.querySelectorAll('.topic-pill').forEach(p => {
+        p.onclick = () => { document.querySelector('.topic-pill.active').classList.remove('active'); p.classList.add('active'); };
     });
 
-    // Solve logic
+    // Stealth Mode
+    document.body.ondblclick = () => { document.getElementById('results').style.display = 'none'; document.getElementById('preview').style.display = 'none'; document.getElementById('msg').style.display = 'block'; };
+
+    // Solve Engine
     document.getElementById('fileIn').onchange = e => solve(e.target.files[0]);
-    window.onpaste = e => {
-        const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image'));
-        if (item) solve(item.getAsFile());
-    };
+    window.onpaste = e => { const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image')); if (item) solve(item.getAsFile()); };
 
     async function solve(file) {
         if (!file) return;
         const loader = document.getElementById('loader'), msg = document.getElementById('msg'), results = document.getElementById('results'), preview = document.getElementById('preview');
-
         loader.style.display = 'block'; msg.style.display = 'none'; results.style.display = 'none';
         preview.src = URL.createObjectURL(file); preview.style.display = 'block';
 
@@ -166,42 +122,39 @@
             const b64 = reader.result.split(',')[1];
             const topic = document.querySelector('.topic-pill.active').innerText;
             try {
-                // FIXED: v1beta endpoint resolves the "model not found" 404 error
+                // THE CRITICAL FIX: Explicit model name with full path for v1beta
                 const api = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
                 
                 const res = await fetch(api, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: `Wiki Assistant: Solve this for ${topic}. Final answer on first line. Steps below.` },
-                                { inline_data: { mime_type: "image/jpeg", data: b64 } }
-                            ]
-                        }]
+                        contents: [{ parts: [
+                            { text: `Topic: ${topic}. Solve this image. First line: answer only. Then detailed steps.` },
+                            { inline_data: { mime_type: "image/jpeg", data: b64 } }
+                        ]}]
                     })
                 });
 
-                const json = await res.json();
-                if (json.error) throw new Error(json.error.message); //
-
-                const output = json.candidates[0].content.parts[0].text;
-                const split = output.split('\n');
+                const data = await res.json();
                 
+                // Detailed check for the "Not Found" error
+                if (data.error) throw new Error(`${data.error.status}: ${data.error.message}`);
+
+                const output = data.candidates[0].content.parts[0].text;
+                const split = output.split('\n');
                 const ans = split[0].trim();
+                
                 document.getElementById('ans').innerText = ans;
                 document.getElementById('method').innerText = split.slice(1).join('\n').trim();
                 
-                // AUTO-COPY answer
                 navigator.clipboard.writeText(ans);
-                
-                loader.style.display = 'none';
-                results.style.display = 'block';
+                loader.style.display = 'none'; results.style.display = 'block';
                 document.getElementById('app').scrollTo({ top: 1000, behavior: 'smooth' });
 
             } catch (err) {
                 console.error(err);
-                alert("WIKI SYSTEM ERROR: " + err.message); //
+                alert("WIKI DEBUG: " + err.message); //
                 loader.style.display = 'none'; msg.style.display = 'block';
             }
         };
