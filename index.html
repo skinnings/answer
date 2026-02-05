@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>answr | pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card: rgba(255, 255, 255, 0.02);
+            --accent: #ffffff;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg); color: white; font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+        /* Splash */
+        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; cursor: pointer; transition: 0.8s; }
+        #splash.hidden { opacity: 0; visibility: hidden; }
+
+        /* Layout */
+        .app-wrapper { display: flex; min-height: 100vh; opacity: 0; transition: 1s; }
+        body.active .app-wrapper { opacity: 1; }
+
+        .sidebar { width: 260px; border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; gap: 20px; background: rgba(255,255,255,0.01); }
+        .main-content { flex: 1; padding: 60px 40px; max-width: 900px; margin: 0 auto; }
+
+        .history-item { font-size: 0.8rem; color: #555; padding: 10px; border-radius: 8px; border: 1px solid transparent; cursor: pointer; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { background: var(--card); border-color: var(--border); color: #888; }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand img { width: 30px; mix-blend-mode: screen; }
+
+        /* Drop Zone */
+        .drop-zone { background: var(--card); border: 1px dashed var(--border); border-radius: 24px; height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; position: relative; }
+        .drop-zone:hover { background: rgba(255,255,255,0.04); border-color: #444; }
+        #preview { max-height: 80px; border-radius: 8px; display: none; margin-bottom: 10px; border: 1px solid var(--border); }
+
+        /* Result Area */
+        #result-area { margin-top: 30px; display: none; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .result-card { background: var(--card); border: 1px solid var(--border); padding: 40px; border-radius: 30px; position: relative; }
+        .main-ans { font-size: 2rem; font-weight: 500; margin-bottom: 20px; color: white; }
+        .steps { color: #888; line-height: 1.8; font-weight: 300; border-top: 1px solid var(--border); padding-top: 20px; }
+
+        .copy-btn { position: absolute; top: 20px; right: 20px; background: none; border: 1px solid var(--border); color: #555; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; transition: 0.3s; }
+        .copy-btn:hover { border-color: white; color: white; }
+
+        .loader { width: 24px; height: 24px; border: 2px solid #222; border-top: 2px solid white; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="splash" onclick="enterSite()">
+        <img src="https://files.catbox.moe/42tjbu.png" style="width:60px; mix-blend-mode:screen;">
+        <p style="letter-spacing:5px; font-size:0.6rem; color:#444; margin-top:20px;">CLICK TO UNLOCK</p>
+    </div>
+
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <p style="font-size: 0.6rem; letter-spacing: 2px; color: #333; font-weight: 600;">HISTORY</p>
+            <div id="history-list"></div>
+        </aside>
+
+        <main class="main-content">
+            <header>
+                <div class="brand">
+                    <img src="https://files.catbox.moe/42tjbu.png">
+                    <h1 style="font-size:1.4rem;">answr</h1>
+                </div>
+                <div style="font-size:0.5rem; color:#333; letter-spacing:2px;">BY MIKEY</div>
+            </header>
+
+            <div class="drop-zone" onclick="document.getElementById('fileIn').click()">
+                <img id="preview">
+                <p id="promptText" style="color:#444; font-size:0.8rem;">PASTE OR UPLOAD PROBLEM</p>
+                <div class="loader" id="loading"></div>
+                <input type="file" id="fileIn" hidden accept="image/*">
+            </div>
+
+            <div id="result-area">
+                <div class="result-card">
+                    <button class="copy-btn" onclick="copyAns()">COPY</button>
+                    <div style="font-size:0.6rem; color:#444; letter-spacing:2px; margin-bottom:10px;">SOLUTION</div>
+                    <div class="main-ans" id="mainAns"></div>
+                    <div style="font-size:0.6rem; color:#444; letter-spacing:2px; margin-bottom:10px;">METHODOLOGY</div>
+                    <div class="steps" id="steps"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // 1. ADD YOUR KEY HERE
+        const KEY = "AIzaSyCHdkNIY3UFJxo14MO9o8Vyj0hjS0fNBAo";
+        const URL_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+
+        window.enterSite = () => {
+            document.getElementById('splash').classList.add('hidden');
+            document.body.classList.add('active');
+        };
+
+        const fileIn = document.getElementById('fileIn');
+        fileIn.onchange = e => process(e.target.files[0]);
+
+        window.onpaste = e => {
+            const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image'));
+            if (item) process(item.getAsFile());
+        };
+
+        async function process(file) {
+            if (!file || KEY.includes("PASTE")) return;
+            
+            toggleUI(true);
+            document.getElementById('preview').src = URL.createObjectURL(file);
+            document.getElementById('preview').style.display = 'block';
+            document.getElementById('promptText').style.display = 'none';
+
+            const b64 = await toB64(file);
+            
+            try {
+                const res = await fetch(URL_API, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: "Solve this. Start with the direct answer in one short sentence. Then explain the steps simply." },
+                                { inline_data: { mime_type: "image/png", data: b64.split(',')[1] } }
+                            ]
+                        }]
+                    })
+                });
+                const d = await res.json();
+                const out = d.candidates[0].content.parts[0].text;
+                render(out);
+            } catch (e) {
+                alert("Check API Key or Region.");
+            }
+        }
+
+        function render(txt) {
+            toggleUI(false);
+            const [ans, ...rest] = txt.split('\n');
+            document.getElementById('mainAns').innerText = ans;
+            document.getElementById('steps').innerText = rest.join('\n').trim();
+            document.getElementById('result-area').style.display = 'block';
+            
+            // Add to history
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerText = ans;
+            item.onclick = () => { document.getElementById('mainAns').innerText = ans; document.getElementById('steps').innerText = rest.join('\n').trim(); };
+            document.getElementById('history-list').prepend(item);
+        }
+
+        function toggleUI(load) {
+            document.getElementById('loading').style.display = load ? 'block' : 'none';
+        }
+
+        window.copyAns = () => {
+            navigator.clipboard.writeText(document.getElementById('mainAns').innerText);
+            alert("Copied!");
+        };
+
+        const toB64 = f => new Promise((res, rej) => {
+            const r = new FileReader(); r.readAsDataURL(f);
+            r.onload = () => res(r.result);
+        });
+    </script>
+</body>
+</html>
