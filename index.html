@@ -6,58 +6,61 @@
     <title>answr | wiki</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&family=Outfit:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --accent: #fff; --card: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08); }
+        :root { --bg: #050505; --card: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: crosshair; }
-        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
 
-        /* Performance Snow */
         canvas#snow { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1; }
 
-        /* Entry Portal Screen */
+        /* Entry Portal */
         #portal {
             position: fixed; inset: 0; background: #000; z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .portal-btn {
-            background: none; border: 1px solid #222; color: #444; padding: 15px 40px;
-            font-size: 0.6rem; letter-spacing: 5px; text-transform: uppercase; font-weight: 900;
-            border-radius: 50px; transition: 0.4s; margin-top: 20px; cursor: pointer;
+            background: none; border: 1px solid #222; color: #555; padding: 18px 45px;
+            font-size: 0.6rem; letter-spacing: 6px; text-transform: uppercase; font-weight: 900;
+            border-radius: 50px; transition: 0.4s; cursor: pointer;
         }
-        .portal-btn:hover { border-color: #fff; color: #fff; box-shadow: 0 0 30px rgba(255,255,255,0.1); }
+        .portal-btn:hover { border-color: #fff; color: #fff; box-shadow: 0 0 40px rgba(255,255,255,0.1); }
 
-        /* Main App Layout */
-        #app { opacity: 0; transition: 1.5s; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow-y: auto; padding: 80px 0; position: relative; z-index: 5; }
-        .container { width: 90%; max-width: 750px; text-align: center; }
+        /* Main App */
+        #app { opacity: 0; transition: 1.5s; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 60px 0; z-index: 5; position: relative; }
+        .container { width: 90%; max-width: 700px; text-align: center; }
 
-        /* Branding: Big & Polished */
-        .logo { width: 300px; margin-bottom: 50px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.05)); }
+        .logo { width: 320px; margin-bottom: 40px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.05)); }
         
-        .wiki-nav { display: flex; gap: 15px; margin-bottom: 30px; }
-        .nav-slot { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; backdrop-filter: blur(10px); }
-        select { width: 100%; background: transparent; border: none; color: #555; outline: none; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; text-align: center; }
-
-        /* Drop Area */
-        .drop-area { 
-            background: var(--card); border: 1px dashed var(--border); border-radius: 40px; 
-            padding: 100px 20px; transition: 0.4s; margin-bottom: 30px; position: relative;
+        /* Topic Pills - Cleaned Up */
+        .topics { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .topic-pill { 
+            background: var(--card); border: 1px solid var(--border); padding: 10px 20px; 
+            border-radius: 50px; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; 
+            font-weight: 600; color: #444; transition: 0.3s; cursor: pointer;
         }
-        .drop-area:hover { background: rgba(255,255,255,0.03); border-color: #333; }
-        #preview { max-height: 250px; border-radius: 20px; display: none; margin: 0 auto 20px; border: 1px solid var(--border); }
-        .drop-area p { color: #151515; font-size: 0.7rem; letter-spacing: 6px; font-weight: 900; text-transform: uppercase; }
+        .topic-pill:hover, .topic-pill.active { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
 
-        /* Solving UI */
-        #results { display: none; text-align: left; width: 100%; }
-        .wiki-block { background: var(--card); border: 1px solid var(--border); border-radius: 30px; padding: 40px; margin-bottom: 20px; backdrop-filter: blur(20px); }
-        .label { font-size: 0.5rem; color: #333; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 20px; font-weight: 900; display: block; border-bottom: 1px solid #111; padding-bottom: 10px; }
+        /* Modern Upload Zone */
+        .drop-area { 
+            background: var(--card); border: 1px solid var(--border); border-radius: 35px; 
+            padding: 100px 20px; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); margin-bottom: 30px;
+        }
+        .drop-area:hover { border-color: #444; transform: translateY(-5px); }
+        #preview { max-height: 200px; border-radius: 15px; display: none; margin: 0 auto 20px; border: 1px solid var(--border); }
+        .drop-area p { color: #1a1a1a; font-size: 0.7rem; letter-spacing: 6px; font-weight: 900; text-transform: uppercase; }
+
+        /* Solving Display */
+        #results { display: none; text-align: left; width: 100%; animation: slideUp 0.8s ease; }
+        .wiki-block { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 40px; margin-bottom: 20px; backdrop-filter: blur(15px); }
+        .label { font-size: 0.5rem; color: #333; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 15px; font-weight: 900; display: block; border-bottom: 1px solid #111; padding-bottom: 8px; }
         .ans-text { font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 700; color: #fff; line-height: 1.1; }
-        .method-text { color: #888; line-height: 1.8; font-size: 0.95rem; white-space: pre-wrap; font-weight: 300; }
+        .method-text { color: #888; line-height: 1.8; font-size: 0.9rem; white-space: pre-wrap; font-weight: 300; }
 
-        /* Loaders */
         .spin { width: 25px; height: 25px; border: 2px solid #111; border-top-color: #fff; border-radius: 50%; animation: rot 0.8s linear infinite; display: none; margin: 20px auto; }
         @keyframes rot { to { transform: rotate(360deg); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         
-        footer { margin-top: auto; padding: 60px; font-size: 0.6rem; letter-spacing: 12px; color: #111; font-weight: 900; text-align: center; width: 100%; }
+        footer { margin-top: auto; padding: 40px; font-size: 0.55rem; letter-spacing: 15px; color: #111; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -65,52 +68,54 @@
 <canvas id="snow"></canvas>
 
 <div id="portal">
-    <img src="https://files.catbox.moe/rmczko.png" style="width: 150px; opacity: 0.3;" alt="answr wiki">
-    <button class="portal-btn" onclick="enter()">Initialize Wiki Session</button>
+    <button class="portal-btn" onclick="enter()">Access Wiki</button>
 </div>
 
 <div id="app">
     <div class="container">
-        <img src="https://files.catbox.moe/rmczko.png" class="logo" alt="answr wiki">
+        <img src="https://files.catbox.moe/rmczko.png" class="logo">
 
-        <div class="wiki-nav">
-            <div class="nav-slot"><select><option>Level: Standard</option><option>Level: Advanced</option></select></div>
-            <div class="nav-slot"><select><option>Database: Unified</option><option>Database: Academic</option></select></div>
+        <div class="topics" id="topicList">
+            <div class="topic-pill active">General</div>
+            <div class="topic-pill">Writing</div>
+            <div class="topic-pill">History</div>
+            <div class="topic-pill">Math</div>
         </div>
 
-        <div class="drop-area" id="dropZone" onclick="document.getElementById('fileIn').click()">
+        <div class="drop-area" onclick="document.getElementById('fileIn').click()">
             <img id="preview">
-            <p id="msg">CTRL+V OR CLICK TO DROP</p>
+            <p id="msg">PASTE OR UPLOAD</p>
             <div class="spin" id="loader"></div>
             <input type="file" id="fileIn" hidden accept="image/*">
         </div>
 
         <div id="results">
             <div class="wiki-block" style="border-top: 1px solid #fff;">
-                <span class="label">Executive Summary</span>
+                <span class="label">Conclusion</span>
                 <div id="ans" class="ans-text"></div>
             </div>
             <div class="wiki-block">
-                <span class="label">Analytical Methodology</span>
+                <span class="label">Methodology</span>
                 <div id="method" class="method-text"></div>
             </div>
         </div>
-        <footer>WIKI CORE v1.0.4</footer>
+        <footer>WIKI CORE 1.1</footer>
     </div>
 </div>
 
 <script>
-    const KEY = "AIzaSyBZV-Rz2xvRyY0vS_Lzei6kj7CX7neZguc"; //
+    // --- KEY SETUP ---
+    const KEY = "AIzaSyBZV-Rz2xvRyY0vS_Lzei6kj7CX7neZguc"; 
 
     function enter() {
         document.getElementById('portal').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('portal').style.display = 'none';
             document.getElementById('app').style.opacity = '1';
-        }, 1000);
+        }, 800);
     }
 
-    // --- Blizzard Engine ---
+    // Snow logic
     const cvs = document.getElementById('snow');
     const c = cvs.getContext('2d');
     let w, h, dots = [];
@@ -118,7 +123,7 @@
         w = cvs.width = window.innerWidth;
         h = cvs.height = window.innerHeight;
         dots = [];
-        for(let i=0; i<150; i++) dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2+1, d: Math.random()*1+0.4, o: Math.random()*0.5 });
+        for(let i=0; i<100; i++) dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2+1, d: Math.random()*0.5+0.2, o: Math.random()*0.4 });
     }
     function draw() {
         c.clearRect(0,0,w,h);
@@ -132,7 +137,15 @@
     }
     window.onresize = setup; setup(); draw();
 
-    // --- API Logic (Stable v1) ---
+    // Topic Selection
+    document.querySelectorAll('.topic-pill').forEach(pill => {
+        pill.onclick = () => {
+            document.querySelector('.topic-pill.active').classList.remove('active');
+            pill.classList.add('active');
+        };
+    });
+
+    // --- API Logic ---
     document.getElementById('fileIn').onchange = e => solve(e.target.files[0]);
     window.onpaste = e => {
         const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image'));
@@ -141,23 +154,18 @@
 
     async function solve(file) {
         if (!file) return;
-        const loader = document.getElementById('loader');
-        const msg = document.getElementById('msg');
-        const results = document.getElementById('results');
-        const preview = document.getElementById('preview');
+        const loader = document.getElementById('loader'), msg = document.getElementById('msg'), results = document.getElementById('results'), preview = document.getElementById('preview');
 
-        loader.style.display = 'block';
-        msg.style.display = 'none';
-        results.style.display = 'none';
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = 'block';
+        loader.style.display = 'block'; msg.style.display = 'none'; results.style.display = 'none';
+        preview.src = URL.createObjectURL(file); preview.style.display = 'block';
 
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async () => {
             const b64 = reader.result.split(',')[1];
+            const topic = document.querySelector('.topic-pill.active').innerText;
             try {
-                // FIXED: v1 production endpoint to fix 404 error
+                // FORCING V1 STABLE TO FIX 404
                 const api = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
                 
                 const res = await fetch(api, {
@@ -166,7 +174,7 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "Wiki Assistant: Solve this professionally. Final answer on line 1. Steps below." },
+                                { text: `Topic: ${topic}. Solve this. First line: final answer. Following lines: detailed steps.` },
                                 { inline_data: { mime_type: "image/jpeg", data: b64 } }
                             ]
                         }]
@@ -184,13 +192,12 @@
                 
                 loader.style.display = 'none';
                 results.style.display = 'block';
-                document.getElementById('app').scrollTo({ top: document.getElementById('app').scrollHeight, behavior: 'smooth' });
+                document.getElementById('app').scrollTo({ top: 1000, behavior: 'smooth' });
 
             } catch (err) {
                 console.error(err);
-                alert("WIKI SYSTEM ERROR: Verify API is enabled and unrestricted."); //
-                loader.style.display = 'none';
-                msg.style.display = 'block';
+                alert("WIKI ERROR: Ensure API is unrestricted in Cloud Console."); //
+                loader.style.display = 'none'; msg.style.display = 'block';
             }
         };
     }
