@@ -4,50 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>answr | wiki</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --accent: #ffffff; --card: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); }
+        :root { --bg: #050505; --card: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.07); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
 
-        /* Enhanced Snowfall */
+        /* Performance Snow System */
         canvas#snow { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1; }
 
-        .container { position: relative; z-index: 2; width: 90%; max-width: 700px; padding: 60px 0; text-align: center; }
+        .container { position: relative; z-index: 2; width: 90%; max-width: 750px; padding: 80px 0; text-align: center; }
         
-        /* Logo QoL: Bigger & Better Glow */
-        .logo { width: 180px; margin-bottom: 40px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.15)); transition: 0.3s; }
-        .logo:hover { transform: scale(1.05); }
+        /* Logo: Bigger & Better */
+        .logo { width: 220px; margin-bottom: 50px; filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)); transition: 0.5s ease; cursor: pointer; }
+        .logo:hover { transform: scale(1.03); filter: drop-shadow(0 0 40px rgba(255,255,255,0.2)); }
 
-        /* Wiki-Style Navigation Bar */
-        .wiki-nav { display: flex; gap: 10px; margin-bottom: 30px; }
-        .nav-item { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; position: relative; }
-        select { width: 100%; background: transparent; border: none; color: #fff; outline: none; cursor: pointer; font-size: 0.85rem; appearance: none; text-align: center; font-weight: 500; }
-        option { background: #0a0a0a; }
+        /* Hidden Wiki Nav */
+        .wiki-header { display: flex; gap: 15px; margin-bottom: 40px; }
+        .nav-slot { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; backdrop-filter: blur(10px); }
+        select { width: 100%; background: transparent; border: none; color: #888; outline: none; cursor: pointer; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; text-align: center; }
+        option { background: #000; color: #fff; }
 
-        /* Stealth Upload Zone */
-        .upload-zone { 
-            background: var(--card); border: 1px dashed var(--border); border-radius: 30px; 
-            padding: 80px 20px; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            margin-bottom: 30px; position: relative; overflow: hidden;
+        /* Drop Zone */
+        .drop-area { 
+            background: var(--card); border: 1px dashed var(--border); border-radius: 40px; 
+            padding: 100px 20px; cursor: pointer; transition: 0.4s; margin-bottom: 40px;
         }
-        .upload-zone:hover { border-color: #555; background: rgba(255,255,255,0.05); }
-        #preview { max-height: 200px; border-radius: 15px; display: none; margin: 0 auto 20px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .upload-zone p { color: #444; font-size: 0.75rem; letter-spacing: 3px; font-weight: 600; text-transform: uppercase; }
+        .drop-area:hover { background: rgba(255,255,255,0.04); border-color: #444; }
+        #preview { max-height: 220px; border-radius: 20px; display: none; margin: 0 auto 25px; border: 1px solid var(--border); }
+        .drop-area p { color: #222; font-size: 0.7rem; letter-spacing: 4px; font-weight: 800; text-transform: uppercase; }
 
         /* Results Logic */
-        #results { display: none; text-align: left; animation: wikiReveal 0.8s ease forwards; }
-        .wiki-section { background: rgba(255,255,255,0.01); border: 1px solid var(--border); border-radius: 24px; padding: 35px; margin-bottom: 20px; backdrop-filter: blur(10px); }
-        .section-tag { font-size: 0.6rem; color: #666; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 15px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px; display: inline-block; }
-        .ans-output { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 700; line-height: 1.1; margin-top: 5px; }
-        .method-output { color: #aaa; line-height: 1.8; font-size: 0.95rem; white-space: pre-wrap; font-weight: 300; }
+        #results { display: none; text-align: left; animation: reveal 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .wiki-block { background: rgba(255,255,255,0.01); border: 1px solid var(--border); border-radius: 30px; padding: 40px; margin-bottom: 20px; backdrop-filter: blur(15px); }
+        .label { font-size: 0.55rem; color: #555; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 20px; font-weight: 900; display: block; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .ans-text { font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 700; color: #fff; margin-top: 10px; line-height: 1.1; }
+        .method-text { color: #777; line-height: 2; font-size: 0.95rem; white-space: pre-wrap; font-weight: 300; }
 
         /* Loader */
-        .loader { width: 30px; height: 30px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; display: none; margin: 20px auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes wikiReveal { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .spin { width: 30px; height: 30px; border: 2px solid #111; border-top-color: #fff; border-radius: 50%; animation: rot 0.8s linear infinite; display: none; margin: 20px auto; }
+        @keyframes rot { to { transform: rotate(360deg); } }
+        @keyframes reveal { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         
-        footer { margin-top: auto; padding: 50px; font-size: 0.65rem; letter-spacing: 6px; color: #222; font-weight: 800; text-transform: uppercase; }
+        footer { margin-top: auto; padding: 60px; font-size: 0.6rem; letter-spacing: 8px; color: #151515; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -55,101 +54,86 @@
 <canvas id="snow"></canvas>
 
 <div class="container">
-    <img src="https://files.catbox.moe/rmczko.png" class="logo" alt="answr wiki logo">
+    <img src="https://files.catbox.moe/rmczko.png" class="logo" alt="answr wiki">
 
-    <div class="wiki-nav">
-        <div class="nav-item">
+    <div class="wiki-header">
+        <div class="nav-slot">
             <select id="grade">
-                <option value="General">General Grade</option>
                 <option value="Middle School">Middle School</option>
                 <option value="High School" selected>High School</option>
-                <option value="University">College / Univ</option>
+                <option value="College">College / University</option>
             </select>
         </div>
-        <div class="nav-item">
+        <div class="nav-slot">
             <select id="subject">
-                <option value="General" selected>General Topic</option>
-                <option value="Mathematics">Mathematics</option>
-                <option value="Physics/Chemistry">Science</option>
-                <option value="Literature">Writing/English</option>
+                <option value="Mathematics" selected>Math</option>
+                <option value="Science">Science</option>
+                <option value="Humanities">Writing / History</option>
             </select>
         </div>
     </div>
 
-    <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-area" id="dropZone" onclick="document.getElementById('fileIn').click()">
         <img id="preview">
-        <p id="instructionText">Paste image or click to browse</p>
-        <div class="loader" id="loading"></div>
-        <input type="file" id="fileInput" hidden accept="image/*">
+        <p id="msg">Drop image or paste</p>
+        <div class="spin" id="loader"></div>
+        <input type="file" id="fileIn" hidden accept="image/*">
     </div>
 
     <div id="results">
-        <div class="wiki-section" style="border-top: 4px solid #fff;">
-            <div class="section-tag">Direct Answer</div>
-            <div id="ans" class="ans-output"></div>
+        <div class="wiki-block" style="border-top: 2px solid #fff;">
+            <span class="label">Primary Conclusion</span>
+            <div id="ans" class="ans-text"></div>
         </div>
-        <div class="wiki-section">
-            <div class="section-tag">Step-by-Step Methodology</div>
-            <div id="method" class="method-output"></div>
+        <div class="wiki-block">
+            <span class="label">Supporting Methodology</span>
+            <div id="method" class="method-text"></div>
         </div>
     </div>
 
-    <footer>MIKEY WIKI SYSTEMS ™</footer>
+    <footer>WIKI CORE SYSTEMS ™</footer>
 </div>
 
 <script>
-    // --- BETTER SNOW QOL ---
-    const canvas = document.getElementById('snow');
-    const ctx = canvas.getContext('2d');
-    let width, height, flakes = [];
+    // --- ADVANCED SNOW ---
+    const cvs = document.getElementById('snow');
+    const c = cvs.getContext('2d');
+    let w, h, dots = [];
 
-    function initSnow() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-        flakes = [];
-        for (let i = 0; i < 150; i++) {
-            flakes.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                size: Math.random() * 3 + 1, // Bigger snow
-                speed: Math.random() * 1 + 0.5,
-                opacity: Math.random() * 0.5
-            });
+    function setup() {
+        w = cvs.width = window.innerWidth;
+        h = cvs.height = window.innerHeight;
+        dots = [];
+        for(let i=0; i<120; i++) {
+            dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2+1, d: Math.random()*1+0.5, o: Math.random()*0.4 });
         }
     }
 
-    function drawSnow() {
-        ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = "white";
-        flakes.forEach(f => {
-            ctx.globalAlpha = f.opacity;
-            ctx.beginPath();
-            ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
-            ctx.fill();
-            f.y += f.speed;
-            if (f.y > height) f.y = -5;
+    function draw() {
+        c.clearRect(0,0,w,h);
+        c.fillStyle = "white";
+        dots.forEach(d => {
+            c.globalAlpha = d.o;
+            c.beginPath(); c.arc(d.x, d.y, d.r, 0, Math.PI*2); c.fill();
+            d.y += d.d; if(d.y > h) d.y = -10;
         });
-        requestAnimationFrame(drawSnow);
+        requestAnimationFrame(draw);
     }
-    window.addEventListener('resize', initSnow);
-    initSnow(); drawSnow();
+    window.onresize = setup; setup(); draw();
 
-    // --- API LOGIC (Fixed for v1) ---
-    // Using v1 as it is the stable choice to avoid "model not found" errors
-    const API_KEY = "AIzaSyCHdkNIY3UFJxo14MO9o8Vyj0hjS0fNBAo"; 
+    // --- API FIX (Stable v1) ---
+    const KEY = "AIzaSyCHdkNIY3UFJxo14MO9o8Vyj0hjS0fNBAo"; 
 
-    document.getElementById('fileInput').onchange = e => processImage(e.target.files[0]);
-    window.onpaste = e => { 
-        const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image')); 
-        if (item) processImage(item.getAsFile()); 
+    document.getElementById('fileIn').onchange = e => solve(e.target.files[0]);
+    window.onpaste = e => {
+        const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image'));
+        if (item) solve(item.getAsFile());
     };
 
-    async function processImage(file) {
+    async function solve(file) {
         if (!file) return;
-        
-        // UI Handling
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('instructionText').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('msg').style.display = 'none';
         document.getElementById('results').style.display = 'none';
         document.getElementById('preview').src = URL.createObjectURL(file);
         document.getElementById('preview').style.display = 'block';
@@ -157,47 +141,42 @@
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async () => {
-            const base64Data = reader.result.split(',')[1];
-            
+            const b64 = reader.result.split(',')[1];
             try {
-                // Fixed URL: v1 is the production stable endpoint
-                const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                // Forcing v1 production endpoint to fix the 404 error
+                const api = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
                 
-                const response = await fetch(endpoint, {
+                const res = await fetch(api, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: `System: You are an expert wiki tutor. Provide the final answer on the first line. Provide a detailed step-by-step methodology below that. Current Context: ${document.getElementById('subject').value}, ${document.getElementById('grade').value}.` },
-                                { inline_data: { mime_type: "image/jpeg", data: base64Data } }
+                                { text: `Wiki Assistant: Solve this for ${document.getElementById('grade').value} level ${document.getElementById('subject').value}. Final answer on line 1. Detailed steps below.` },
+                                { inline_data: { mime_type: "image/jpeg", data: b64 } }
                             ]
                         }]
                     })
                 });
 
-                const data = await response.json();
-                
-                if (data.error) throw new Error(data.error.message);
+                const json = await res.json();
+                if (json.error) throw new Error(json.error.message);
 
-                const fullText = data.candidates[0].content.parts[0].text;
-                const lines = fullText.split('\n');
+                const output = json.candidates[0].content.parts[0].text;
+                const split = output.split('\n');
                 
-                document.getElementById('ans').innerText = lines[0];
-                document.getElementById('method').innerText = lines.slice(1).join('\n').trim();
+                document.getElementById('ans').innerText = split[0];
+                document.getElementById('method').innerText = split.slice(1).join('\n').trim();
                 
-                document.getElementById('loading').style.display = 'none';
+                document.getElementById('loader').style.display = 'none';
                 document.getElementById('results').style.display = 'block';
-                
-                // QoL: Smooth Scroll to Result
-                window.scrollTo({ top: document.getElementById('results').offsetTop - 50, behavior: 'smooth' });
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
             } catch (err) {
                 console.error(err);
-                // Alert handles cases where API is not enabled in Cloud Console
-                alert("Wiki System Error: Verify your API key is enabled for 'Generative Language API' in Google Cloud Console.");
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('instructionText').style.display = 'block';
+                alert("WIKI SYSTEM ERROR: Verify 'Generative Language API' is enabled in Google Cloud Console.");
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('msg').style.display = 'block';
             }
         };
     }
