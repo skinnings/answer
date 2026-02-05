@@ -6,129 +6,139 @@
     <title>answr | pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --card: rgba(255, 255, 255, 0.02); --accent: #ffffff; --border: rgba(255, 255, 255, 0.08); }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg); color: white; font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
-        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; cursor: pointer; transition: 0.8s; }
-        #splash.hidden { opacity: 0; visibility: hidden; }
-        .app-wrapper { display: flex; min-height: 100vh; opacity: 0; transition: 1s; }
-        body.active .app-wrapper { opacity: 1; }
-        .sidebar { width: 260px; border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; gap: 20px; background: rgba(255,255,255,0.01); }
-        .main-content { flex: 1; padding: 60px 40px; max-width: 900px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .drop-zone { background: var(--card); border: 1px dashed var(--border); border-radius: 24px; height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; }
-        #preview { max-height: 80px; border-radius: 8px; display: none; margin-bottom: 10px; border: 1px solid var(--border); }
-        #result-area { margin-top: 30px; display: none; animation: slideUp 0.5s ease; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .result-card { background: var(--card); border: 1px solid var(--border); padding: 40px; border-radius: 30px; position: relative; }
-        .main-ans { font-size: 2rem; font-weight: 500; margin-bottom: 20px; color: white; }
-        .steps { color: #888; line-height: 1.8; font-weight: 300; border-top: 1px solid var(--border); padding-top: 20px; white-space: pre-wrap; }
-        .loader { width: 24px; height: 24px; border: 2px solid #222; border-top: 2px solid white; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .error-msg { color: #ff4444; font-size: 0.7rem; margin-top: 10px; display: none; text-align: center; }
+        :root { --bg: #050505; --card: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* Performance Optimized Snow */
+        @keyframes snow { 0% { transform: translateY(-10px); } 100% { transform: translateY(100vh); } }
+        .dot { position: fixed; top: -10px; background: white; border-radius: 50%; opacity: 0.2; animation: snow linear infinite; pointer-events: none; z-index: 1; }
+
+        .container { position: relative; z-index: 2; width: 90%; max-width: 600px; text-align: center; }
+        header h1 { font-size: 3.5rem; font-weight: 600; letter-spacing: -4px; margin-bottom: 30px; }
+
+        .settings { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        select { background: var(--card); border: 1px solid var(--border); color: #888; padding: 10px 15px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; outline: none; transition: 0.3s; }
+        select:hover { border-color: #444; color: #fff; }
+
+        .upload-box { background: var(--card); border: 1px dashed var(--border); border-radius: 24px; padding: 60px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(10px); }
+        .upload-box:hover { background: rgba(255,255,255,0.05); border-color: #555; }
+        #preview { max-height: 120px; border-radius: 12px; display: none; margin: 0 auto 20px; border: 1px solid var(--border); }
+
+        #results { display: none; margin-top: 30px; text-align: left; width: 100%; animation: slideUp 0.5s ease; }
+        .res-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; margin-bottom: 15px; backdrop-filter: blur(5px); }
+        .label { font-size: 0.6rem; color: #444; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; font-weight: 600; }
+        .ans-main { font-size: 2rem; font-weight: 600; color: #fff; line-height: 1.2; }
+        .method-steps { color: #888; line-height: 1.8; font-size: 0.95rem; font-weight: 300; white-space: pre-wrap; }
+
+        .loader { width: 30px; height: 30px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; margin: 20px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        footer { margin-top: 50px; font-size: 0.6rem; letter-spacing: 5px; color: #222; font-weight: 600; opacity: 0.8; }
     </style>
 </head>
 <body>
-    <div id="splash" onclick="enterSite()">
-        <img src="https://files.catbox.moe/42tjbu.png" style="width:60px; mix-blend-mode:screen;">
-        <p style="letter-spacing:5px; font-size:0.6rem; color:#444; margin-top:20px;">CLICK TO UNLOCK</p>
+
+<div class="container">
+    <header>
+        <h1>answr</h1>
+    </header>
+
+    <div class="settings">
+        <select id="grade">
+            <option value="Middle School">Grade: MS</option>
+            <option value="High School" selected>Grade: HS</option>
+            <option value="College">Grade: Univ</option>
+        </select>
+        <select id="subject">
+            <option value="Math">Subject: Math</option>
+            <option value="Science">Subject: Sci</option>
+            <option value="History">Subject: Hist</option>
+        </select>
     </div>
 
-    <div class="app-wrapper">
-        <aside class="sidebar">
-            <p style="font-size: 0.6rem; letter-spacing: 2px; color: #333; font-weight: 600;">HISTORY</p>
-            <div id="history-list"></div>
-        </aside>
-
-        <main class="main-content">
-            <header>
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <img src="https://files.catbox.moe/42tjbu.png" style="width:30px; mix-blend-mode:screen;">
-                    <h1 style="font-size:1.4rem;">answr</h1>
-                </div>
-                <div style="font-size:0.5rem; color:#333; letter-spacing:2px;">BY MIKEY</div>
-            </header>
-
-            <div class="drop-zone" onclick="document.getElementById('fileIn').click()">
-                <img id="preview">
-                <p id="promptText" style="color:#444; font-size:0.8rem;">PASTE OR UPLOAD PROBLEM</p>
-                <div class="loader" id="loading"></div>
-                <input type="file" id="fileIn" hidden accept="image/*">
-            </div>
-            <div id="api-error" class="error-msg"></div>
-
-            <div id="result-area">
-                <div class="result-card">
-                    <div class="main-ans" id="mainAns"></div>
-                    <div class="steps" id="steps"></div>
-                </div>
-            </div>
-        </main>
+    <div class="upload-box" onclick="document.getElementById('file').click()">
+        <img id="preview">
+        <p id="promptText" style="color:#333; letter-spacing: 1px; font-size: 0.8rem;">UPLOAD OR PASTE IMAGE</p>
+        <div class="loader" id="loading"></div>
+        <input type="file" id="file" hidden accept="image/*">
     </div>
 
-    <script type="module">
-        // 1. REPLACED WITH GEMINI 3 FLASH (LATEST)
-        const KEY = "AIzaSyCHdkNIY3UFJxo14MO9o8Vyj0hjS0fNBAo";
-        const URL_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${KEY}`;
+    <div id="results">
+        <div class="res-card" style="border-left: 4px solid #fff;">
+            <div class="label">Primary Result</div>
+            <div class="ans-main" id="ans"></div>
+        </div>
+        <div class="res-card">
+            <div class="label">Methodology</div>
+            <div class="method-steps" id="method"></div>
+        </div>
+    </div>
 
-        window.enterSite = () => {
-            document.getElementById('splash').classList.add('hidden');
-            document.body.classList.add('active');
-        };
+    <footer>MADE BY MIKEY ™</footer>
+</div>
 
-        const fileIn = document.getElementById('fileIn');
-        fileIn.onchange = e => process(e.target.files[0]);
+<script>
+    // Snow Generator
+    for (let i = 0; i < 50; i++) {
+        let dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.style.left = Math.random() * 100 + 'vw';
+        dot.style.width = dot.style.height = (Math.random() * 3 + 1) + 'px';
+        dot.style.animationDuration = (Math.random() * 5 + 3) + 's';
+        dot.style.opacity = Math.random();
+        document.body.appendChild(dot);
+    }
 
-        window.onpaste = e => {
-            const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image'));
-            if (item) process(item.getAsFile());
-        };
+    const KEY = "AIzaSyCHdkNIY3UFJxo14MO9o8Vyj0hjS0fNBAo";
+    const API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
 
-        async function process(file) {
-            if (!file) return;
-            document.getElementById('api-error').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('promptText').style.display = 'none';
-            document.getElementById('preview').src = URL.createObjectURL(file);
-            document.getElementById('preview').style.display = 'block';
+    document.getElementById('file').onchange = e => run(e.target.files[0]);
+    window.onpaste = e => { 
+        const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image')); 
+        if (item) run(item.getAsFile()); 
+    };
 
-            const b64 = await toB64(file);
-            
-            try {
-                const res = await fetch(URL_API, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: "Solve this. Direct answer first, then steps." },
-                                { inline_data: { mime_type: "image/png", data: b64.split(',')[1] } }
-                            ]
-                        }]
-                    })
-                });
-
-                const d = await res.json();
-                
-                if (d.error) {
-                    throw new Error(d.error.message);
-                }
-
-                const out = d.candidates[0].content.parts[0].text;
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('mainAns').innerText = out.split('\n')[0];
-                document.getElementById('steps').innerText = out.split('\n').slice(1).join('\n');
-                document.getElementById('result-area').style.display = 'block';
-            } catch (e) {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('api-error').innerText = "ERROR: " + e.message;
-                document.getElementById('api-error').style.display = 'block';
-            }
-        }
-
-        const toB64 = f => new Promise((res) => {
-            const r = new FileReader(); r.readAsDataURL(f);
-            r.onload = () => res(r.result);
+    async function run(file) {
+        if (!file) return;
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('promptText').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('preview').src = URL.createObjectURL(file);
+        document.getElementById('preview').style.display = 'block';
+        
+        const b64 = await new Promise(r => { 
+            const rd = new FileReader(); 
+            rd.readAsDataURL(file); 
+            rd.onload = () => r(rd.result.split(',')[1]); 
         });
-    </script>
+
+        try {
+            const res = await fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [
+                    { text: `Solve this problem for ${document.getElementById('grade').value} level ${document.getElementById('subject').value}. Format: Keep the final answer very short on the first line. Put all steps and explanations on following lines.` },
+                    { inline_data: { mime_type: "image/jpeg", data: b64 } }
+                ] }] })
+            });
+            const d = await res.json();
+            const txt = d.candidates[0].content.parts[0].text;
+            
+            const firstLine = txt.split('\n')[0];
+            const steps = txt.split('\n').slice(1).join('\n').trim();
+
+            document.getElementById('ans').innerText = firstLine;
+            document.getElementById('method').innerText = steps || "No additional steps provided.";
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+        } catch (e) {
+            alert("Check API Key or Region settings in Google AI Studio.");
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('promptText').style.display = 'block';
+        }
+    }
+</script>
 </body>
 </html>
