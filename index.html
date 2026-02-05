@@ -25,13 +25,13 @@
         }
         .portal-btn:hover { border-color: #fff; color: #fff; box-shadow: 0 0 40px rgba(255,255,255,0.1); }
 
-        /* Main App */
+        /* Main App Container */
         #app { opacity: 0; transition: 1.5s; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 60px 0; z-index: 5; position: relative; }
         .container { width: 90%; max-width: 700px; text-align: center; }
 
         .logo { width: 320px; margin-bottom: 40px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.05)); }
         
-        /* Topic Pills - Cleaned Up */
+        /* Topic Selection */
         .topics { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
         .topic-pill { 
             background: var(--card); border: 1px solid var(--border); padding: 10px 20px; 
@@ -40,7 +40,7 @@
         }
         .topic-pill:hover, .topic-pill.active { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
 
-        /* Modern Upload Zone */
+        /* Drop Zone */
         .drop-area { 
             background: var(--card); border: 1px solid var(--border); border-radius: 35px; 
             padding: 100px 20px; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); margin-bottom: 30px;
@@ -49,7 +49,7 @@
         #preview { max-height: 200px; border-radius: 15px; display: none; margin: 0 auto 20px; border: 1px solid var(--border); }
         .drop-area p { color: #1a1a1a; font-size: 0.7rem; letter-spacing: 6px; font-weight: 900; text-transform: uppercase; }
 
-        /* Solving Display */
+        /* Results Display */
         #results { display: none; text-align: left; width: 100%; animation: slideUp 0.8s ease; }
         .wiki-block { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 40px; margin-bottom: 20px; backdrop-filter: blur(15px); }
         .label { font-size: 0.5rem; color: #333; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 15px; font-weight: 900; display: block; border-bottom: 1px solid #111; padding-bottom: 8px; }
@@ -68,34 +68,34 @@
 <canvas id="snow"></canvas>
 
 <div id="portal">
-    <button class="portal-btn" onclick="enter()">Access Wiki</button>
+    <button class="portal-btn" onclick="enter()">Access Wiki Node</button>
 </div>
 
 <div id="app">
     <div class="container">
         <img src="https://files.catbox.moe/rmczko.png" class="logo">
 
-        <div class="topics" id="topicList">
+        <div class="topics">
             <div class="topic-pill active">General</div>
             <div class="topic-pill">Writing</div>
             <div class="topic-pill">History</div>
             <div class="topic-pill">Math</div>
         </div>
 
-        <div class="drop-area" onclick="document.getElementById('fileIn').click()">
+        <div class="drop-area" id="dropZone" onclick="document.getElementById('fileIn').click()">
             <img id="preview">
-            <p id="msg">PASTE OR UPLOAD</p>
+            <p id="msg">PASTE IMAGE OR CLICK TO UPLOAD</p>
             <div class="spin" id="loader"></div>
             <input type="file" id="fileIn" hidden accept="image/*">
         </div>
 
         <div id="results">
             <div class="wiki-block" style="border-top: 1px solid #fff;">
-                <span class="label">Conclusion</span>
+                <span class="label">Primary Conclusion</span>
                 <div id="ans" class="ans-text"></div>
             </div>
             <div class="wiki-block">
-                <span class="label">Methodology</span>
+                <span class="label">Analytical Breakdown</span>
                 <div id="method" class="method-text"></div>
             </div>
         </div>
@@ -104,8 +104,8 @@
 </div>
 
 <script>
-    // --- KEY SETUP ---
-    const KEY = "AIzaSyBZV-Rz2xvRyY0vS_Lzei6kj7CX7neZguc"; 
+    // --- API CONFIGURATION ---
+    const KEY = "AIzaSyBZV-Rz2xvRyY0vS_Lzei6kj7CX7neZguc"; // Your unrestricted key
 
     function enter() {
         document.getElementById('portal').style.opacity = '0';
@@ -115,7 +115,7 @@
         }, 800);
     }
 
-    // Snow logic
+    // Snow animation logic
     const cvs = document.getElementById('snow');
     const c = cvs.getContext('2d');
     let w, h, dots = [];
@@ -123,7 +123,7 @@
         w = cvs.width = window.innerWidth;
         h = cvs.height = window.innerHeight;
         dots = [];
-        for(let i=0; i<100; i++) dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2+1, d: Math.random()*0.5+0.2, o: Math.random()*0.4 });
+        for(let i=0; i<120; i++) dots.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*2+1, d: Math.random()*0.5+0.2, o: Math.random()*0.4 });
     }
     function draw() {
         c.clearRect(0,0,w,h);
@@ -137,7 +137,7 @@
     }
     window.onresize = setup; setup(); draw();
 
-    // Topic Selection
+    // Topic Selection Logic
     document.querySelectorAll('.topic-pill').forEach(pill => {
         pill.onclick = () => {
             document.querySelector('.topic-pill.active').classList.remove('active');
@@ -145,7 +145,7 @@
         };
     });
 
-    // --- API Logic ---
+    // --- SOLVING ENGINE ---
     document.getElementById('fileIn').onchange = e => solve(e.target.files[0]);
     window.onpaste = e => {
         const item = Array.from(e.clipboardData.items).find(x => x.type.includes('image'));
@@ -163,9 +163,9 @@
         reader.readAsDataURL(file);
         reader.onload = async () => {
             const b64 = reader.result.split(',')[1];
-            const topic = document.querySelector('.topic-pill.active').innerText;
+            const activeTopic = document.querySelector('.topic-pill.active').innerText;
             try {
-                // FORCING V1 STABLE TO FIX 404
+                // Forcing V1 stable path to avoid 404 errors
                 const api = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
                 
                 const res = await fetch(api, {
@@ -174,7 +174,7 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: `Topic: ${topic}. Solve this. First line: final answer. Following lines: detailed steps.` },
+                                { text: `Act as a Wiki Expert in ${activeTopic}. Solve this image. Line 1: Final answer only. Following lines: Step-by-step breakdown.` },
                                 { inline_data: { mime_type: "image/jpeg", data: b64 } }
                             ]
                         }]
@@ -182,7 +182,7 @@
                 });
 
                 const json = await res.json();
-                if (json.error) throw new Error(json.error.message); //
+                if (json.error) throw new Error(json.error.message);
 
                 const output = json.candidates[0].content.parts[0].text;
                 const split = output.split('\n');
@@ -196,7 +196,7 @@
 
             } catch (err) {
                 console.error(err);
-                alert("WIKI ERROR: Ensure API is unrestricted in Cloud Console."); //
+                alert("WIKI SYSTEM ERROR: Verify API status in Cloud Console.");
                 loader.style.display = 'none'; msg.style.display = 'block';
             }
         };
